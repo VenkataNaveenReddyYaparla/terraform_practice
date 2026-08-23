@@ -21,3 +21,4 @@ resource "aws_instance" "sample_ec2" {
   vpc_security_group_ids = [aws_security_group.all_ssh.id]
   key_name               = "my_new_ec2_keypair"
 }
+ 
