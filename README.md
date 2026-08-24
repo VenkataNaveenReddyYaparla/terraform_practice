@@ -71,8 +71,32 @@ terraform plan
 terraform apply
 terraform state list
 terraform show
+terraform refresh
 terraform destroy
 ```
+
+**terraform state list Output:**
+```
+data.aws_vpc.default
+aws_instance.sample_ec2
+aws_security_group.all_ssh
+```
+
+**terraform refresh Output:**
+Syncs the local Terraform state with actual AWS resources:
+```
+data.aws_vpc.default: Reading...
+aws_security_group.all_ssh: Refreshing state... [id=sg-0538aa9f57025b5b1]
+aws_instance.sample_ec2: Refreshing state... [id=i-0bd093c52867b9ae8]
+data.aws_vpc.default: Read complete after 0s [id=vpc-0aa6191354ae0a344]
+
+Outputs:
+default_vpc_id = "vpc-0aa6191354ae0a344"
+vm_name        = "i-0bd093c52867b9ae8"
+vm_public_ip   = "3.111.58.82"
+```
+
+> **Note:** `terraform refresh` updates the state file without modifying any resources. Useful when resources are changed outside Terraform (AWS Console, CLI, etc.)
 
 **State Output Example:**
 ```
