@@ -48,6 +48,83 @@ terraform output vm_public_ip
 terraform destroy
 ```
 
+### DAY_3 - EC2 with Data Source
+
+Creates an EC2 instance using a data source to reference an existing default VPC.
+
+**Resources:**
+- Data source: Default VPC lookup
+- EC2 instance: t3.micro (Amazon Linux 2)
+- Security group: SSH access (port 22)
+- Outputs: Default VPC ID, VM instance ID, and public IP
+
+**Key concepts:**
+- Demonstrates `data` sources to reference existing AWS resources
+- Uses variables with proper syntax (no quotes around `var.*`)
+- Outputs multiple values
+
+**Usage:**
+```powershell
+cd DAY_3
+terraform init
+terraform plan
+terraform apply
+terraform state list
+terraform show
+terraform destroy
+```
+
+**State Output Example:**
+```
+data.aws_vpc.default         # Default VPC data source
+aws_instance.sample_ec2      # EC2 instance resource
+aws_security_group.all_ssh   # Security group resource
+```
+
+**terraform show Output (Key Fields):**
+```hcl
+# data.aws_vpc.default:
+data "aws_vpc" "default" {
+  arn           = "arn:aws:ec2:ap-south-1:611346097057:vpc/vpc-0aa6191354ae0a344"
+  cidr_block    = "172.31.0.0/16"
+  default       = true
+  id            = "vpc-0aa6191354ae0a344"
+  instance_tenancy = "default"
+}
+
+# aws_instance.sample_ec2:
+resource "aws_instance" "sample_ec2" {
+  ami                    = "ami-0ac7b260cf76d8865"
+  arn                    = "arn:aws:ec2:ap-south-1:611346097057:instance/i-0bd093c52867b9ae8"
+  id                     = "i-0bd093c52867b9ae8"
+  instance_state         = "running"
+  instance_type          = "t3.micro"
+  key_name               = "my_new_ec2_keypair"
+  private_ip             = "172.31.14.208"
+  public_dns             = "ec2-3-111-58-82.ap-south-1.compute.amazonaws.com"
+  public_ip              = "3.111.58.82"
+  vpc_security_group_ids = ["sg-0538aa9f57025b5b1"]
+}
+
+# aws_security_group.all_ssh:
+resource "aws_security_group" "all_ssh" {
+  arn         = "arn:aws:ec2:ap-south-1:611346097057:security-group/sg-0538aa9f57025b5b1"
+  id          = "sg-0538aa9f57025b5b1"
+  name        = "ec2-security-group"
+  ingress {
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+}
+
+Outputs:
+default_vpc_id = "vpc-0aa6191354ae0a344"
+vm_name        = "i-0bd093c52867b9ae8"
+vm_public_ip   = "3.111.58.82"
+```
+
 ## Prerequisites
 
 - Terraform 1.0+ installed
