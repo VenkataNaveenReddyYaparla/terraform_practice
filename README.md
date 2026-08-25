@@ -243,6 +243,52 @@ terraform plan -var="instance_type=t3.small"
 3. `.tfvars` files (auto-loaded: `terraform.tfvars`, `*.auto.tfvars`)
 4. Default values in `variable.tf`
 
+## Terraform Workspaces
+
+A workspace provides a separate Terraform state for the same configuration. The configuration files remain the same, but each workspace tracks different resource instances.
+
+For example, DAY_5 used these workspaces:
+
+```text
+default    # The original workspace
+dev        # A separate workspace with separate state
+```
+
+### Workspace Commands
+
+Run these commands from the project directory:
+
+```powershell
+terraform workspace list
+terraform workspace show
+terraform workspace new dev
+terraform workspace select dev
+terraform workspace select default
+terraform workspace delete dev
+```
+
+When a new workspace is created, its state starts empty. Therefore, running `terraform apply` in `dev` creates a new EC2 instance and security group, even if `default` already has resources.
+
+Each workspace must be checked before running commands:
+
+```powershell
+terraform workspace select dev
+terraform plan
+terraform apply
+terraform state list
+terraform destroy
+```
+
+`terraform destroy` affects only the currently selected workspace. Switching to `default` and running `terraform destroy` affects the resources tracked by `default`, not `dev`.
+
+### Important Notes
+
+- A workspace has its own state; resources are not shared between workspaces.
+- Workspaces do not create separate folders or separate AWS accounts.
+- With an S3 backend, workspace state is stored separately under workspace-specific state paths.
+- The S3 bucket and DynamoDB lock table are backend infrastructure and should not be managed or destroyed by the DAY_5 workspace configuration.
+- Always run `terraform workspace show` before `plan`, `apply`, or `destroy`.
+
 ## State and Ignored Files
 
 Terraform state files and `.terraform/` directory are excluded by `.gitignore`.  
